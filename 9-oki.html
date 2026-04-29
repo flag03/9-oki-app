@@ -300,8 +300,6 @@
     <div class="matrix" id="matrixList"></div>
   </div>
 </div>
-
-<script>
 <script>
 // 1. 数理定義（大内軍師・専用マトリクス）
 const MATRIX = {
@@ -320,7 +318,7 @@ const STORAGE_KEY = '9oki_v2';
 const MAX_HISTORY = 5;
 const $ = id => document.getElementById(id);
 
-// 2. 数根計算ロジック（TQ）
+// 2. 数根計算ロジック（TQ：構造・因果整理）
 function digitalRoot(numbers){
   if(!numbers || numbers.length === 0) return null;
   let sum = numbers.reduce((a,b)=>a+b, 0);
@@ -334,7 +332,7 @@ function digitalRoot(numbers){
   return { root: sum, steps: steps.join(' → ') };
 }
 
-// 3. 数字抽出
+// 3. 数字抽出（情報の濾過）
 function parseNumbers(str){
   if(!str) return [];
   return str.split(/[\s,、，\n\r\t;；]+/).map(s => {
@@ -343,7 +341,7 @@ function parseNumbers(str){
   }).filter(v => v !== null);
 }
 
-// 4. 結果描画
+// 4. 結果表示（EQ・LQ：共感設計と信頼構築）
 function renderResult(num, steps){
   const m = MATRIX[num];
   const res = $('result');
@@ -364,7 +362,7 @@ function renderResult(num, steps){
   document.body.className = num === 7 ? 'warning-7' : (num === 9 ? 'glory-9' : '');
 }
 
-// 5. 履歴管理（ローカル保存）
+// 5. 履歴管理
 function saveHistory(data){
   let list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   list.unshift(data);
@@ -403,7 +401,7 @@ function renderHistory(){
   if(list.length === MAX_HISTORY) renderGrand(list);
 }
 
-// 6. 総合数根（5件合算）
+// 6. 総合数根
 function renderGrand(list){
   const roots = list.map(i => i.root);
   const r = digitalRoot(roots);
@@ -416,7 +414,7 @@ function renderGrand(list){
   `;
 }
 
-// 7. カメラ・画像プレビュー
+// 7. カメラ起動
 function showPreview(file){
   const reader = new FileReader();
   reader.onload = e => {
@@ -427,7 +425,7 @@ function showPreview(file){
   reader.readAsDataURL(file);
 }
 
-// 8. 実行処理
+// 8. 実行
 function runCalc(){
   const val = $('numInput').value;
   const nums = parseNumbers(val);
@@ -440,6 +438,7 @@ function runCalc(){
 
 function setStatus(msg, cls){
   const s = $('status');
+  if(!s) return;
   s.textContent = msg;
   s.className = 'status ' + cls;
   s.style.display = 'block';
@@ -460,6 +459,7 @@ function clearHistory(){
 
 function renderMatrix(){
   const el = $('matrixList');
+  if(!el) return;
   let html = '';
   for(let i=1; i<=9; i++){
     const m = MATRIX[i];
@@ -478,35 +478,36 @@ function renderMatrix(){
   el.innerHTML = html;
 }
 
-// 9. イベントリスナー登録
-$('btnCalc').addEventListener('click', runCalc);
-$('btnCamera').addEventListener('click', () => $('cameraInput').click());
-$('btnGallery').addEventListener('click', () => $('fileInput').click());
-$('btnClearAll').addEventListener('click', clearHistory);
-$('btnClearImg').addEventListener('click', () => { $('previewSection').style.display='none'; });
+// 9. イベント登録
+window.onload = () => {
+  $('btnCalc').addEventListener('click', runCalc);
+  $('btnCamera').addEventListener('click', () => $('cameraInput').click());
+  $('btnGallery').addEventListener('click', () => $('fileInput').click());
+  if($('btnClearAll')) $('btnClearAll').addEventListener('click', clearHistory);
+  if($('btnClearImg')) $('btnClearImg').addEventListener('click', () => { $('previewSection').style.display='none'; });
 
-['fileInput','cameraInput'].forEach(id => {
-  $(id).addEventListener('change', e => {
-    const f = e.target.files[0];
-    if(f) showPreview(f);
+  ['fileInput','cameraInput'].forEach(id => {
+    $(id).addEventListener('change', e => {
+      const f = e.target.files[0];
+      if(f) showPreview(f);
+    });
   });
-});
 
-document.querySelectorAll('.sample').forEach(b => {
-  b.addEventListener('click', e => {
-    $('numInput').value = e.currentTarget.dataset.v;
-    runCalc();
+  document.querySelectorAll('.sample').forEach(b => {
+    b.addEventListener('click', e => {
+      $('numInput').value = e.currentTarget.dataset.v;
+      runCalc();
+    });
   });
-});
 
-$('matrixToggle').addEventListener('click', e => {
-  $('matrixList').classList.toggle('open');
-  e.currentTarget.textContent = $('matrixList').classList.contains('open') ? '▲ 閉じる' : '▼ 一覧を見る';
-});
+  $('matrixToggle').addEventListener('click', e => {
+    $('matrixList').classList.toggle('open');
+    e.currentTarget.textContent = $('matrixList').classList.contains('open') ? '▲ 閉じる' : '▼ 一覧を見る';
+  });
 
-// 初期起動
-renderMatrix();
-renderHistory();
+  renderMatrix();
+  renderHistory();
+};
 </script>
 </body>
 </html>

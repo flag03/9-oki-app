@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#fdf4f7" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="9-OKI" />
+<title>九起き ✨</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{
+    width:100%;min-height:100%;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Maru Gothic ProN","ヒラギノ丸ゴ ProN W4","Hiragino Sans","Yu Gothic UI",sans-serif;
+    color:#5a3a4a;
+    background:linear-gradient(180deg,#fff5f9 0%,#fef0f5 50%,#fce4ee 100%);
+    background-attachment:fixed;
+  }
+  body{
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    padding-bottom:40px;
+  }
+
+  .wrap{max-width:480px;margin:0 auto;padding:16px;}
+
+  /* ヘッダー */
+  .hero{
+    text-align:center;padding:18px 14px 22px;margin-bottom:14px;
+    background:#fff;border-radius:24px;
+    box-shadow:0 4px 20px rgba(220,160,180,.18);
+    border:2px solid #ffd6e3;
+  }
+  .hero .title{
+    font-size:32px;font-weight:700;
+    background:linear-gradient(90deg,#ff8aaf,#c490ce 50%,#9aa0e0);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    letter-spacing:.05em;
+  }
+  .hero .subtitle{font-size:15px;color:#9b7587;margin-top:4px;font-weight:500;}
+  .hero .desc{
+    margin-top:10px;font-size:13px;color:#7d5a6c;line-height:1.7;
+    background:#fff5f9;padding:10px 12px;border-radius:14px;
+  }
+
+  /* セクション共通 */
+  .card{
+    background:#fff;border-radius:20px;padding:18px 18px 18px;
+    margin-bottom:14px;
+    box-shadow:0 3px 14px rgba(220,160,180,.13);
+    border:1.5px solid #ffe1eb;
+  }
+  .card h2{
+    font-size:15px;font-weight:700;color:#c66e93;
+    margin-bottom:10px;display:flex;align-items:center;gap:6px;letter-spacing:.05em;
+  }
+  .card h2 .badge{
+    background:linear-gradient(135deg,#ffb8d0,#ffc8e0);color:#fff;
+    padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;
+  }
+
+  /* メインビジュアル（結果表示） */
+  .result{
+    text-align:center;padding:24px 16px;
+    background:linear-gradient(135deg,#fff8fb 0%,#fff0f5 100%);
+    border-radius:24px;border:2px dashed #ffc6d8;
+    margin-bottom:14px;min-height:200px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .result.has-result{
+    border-style:solid;
+    background:linear-gradient(135deg,#fff5f9 0%,#fde7ef 100%);
+  }
+  .result.yang{background:linear-gradient(135deg,#fff0e8 0%,#ffd9c8 100%);border-color:#ff9f8a;}
+  .result.yin{background:linear-gradient(135deg,#eef0ff 0%,#d8dffa 100%);border-color:#a0aae0;}
+
+  .result .label{
+    font-size:13px;color:#a07c8c;margin-bottom:8px;letter-spacing:.15em;font-weight:600;
+  }
+  .result .num{
+    font-size:130px;line-height:1;font-weight:800;
+    background:linear-gradient(135deg,#ff8aaf 0%,#c490ce 100%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    text-shadow:none;
+    margin:4px 0;
+  }
+  .result.yang .num{background:linear-gradient(135deg,#ff7855 0%,#ffa074 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .result.yin .num{background:linear-gradient(135deg,#5670d6 0%,#8a9bea 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .result .placeholder{font-size:60px;color:#e5b8cb;font-weight:300;}
+  .result .state{font-size:22px;font-weight:700;color:#7a4860;margin-top:6px;letter-spacing:.1em;}
+  .result.yang .state{color:#a04528;}
+  .result.yin .state{color:#3d4a99;}
+  .result .action{
+    margin-top:8px;font-size:14px;color:#8a6478;line-height:1.6;
+    background:rgba(255,255,255,.7);padding:8px 14px;border-radius:14px;display:inline-block;font-weight:600;
+  }
+  .result .placeholder-text{font-size:14px;color:#b89bac;margin-top:8px;}
+
+  /* 入力フィールド */
+  .num-input{
+    width:100%;padding:14px 16px;
+    background:#fff8fb;border:2px solid #ffd0e0;
+    border-radius:16px;color:#5a3a4a;font-size:18px;font-family:inherit;font-weight:600;
+    -webkit-appearance:none;outline:none;
+    transition:all .15s;
+    text-align:center;letter-spacing:.05em;
+  }
+  .num-input:focus{border-color:#ff8aaf;background:#fff;box-shadow:0 0 0 4px rgba(255,138,175,.12);}
+  .num-input::placeholder{color:#d8b6c5;font-weight:500;}
+  .input-hint{font-size:12px;color:#a08698;margin-top:8px;text-align:center;line-height:1.6;}
+
+  /* ボタン */
+  .btn{
+    appearance:none;border:none;
+    padding:14px 16px;border-radius:16px;font-size:16px;font-weight:700;
+    cursor:pointer;transition:all .15s;font-family:inherit;
+    width:100%;letter-spacing:.05em;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg,#ff8aaf 0%,#ff9fbe 100%);color:#fff;
+    box-shadow:0 4px 12px rgba(255,138,175,.35);
+    margin-top:12px;
+  }
+  .btn-primary:hover,.btn-primary:active{
+    transform:translateY(-1px);box-shadow:0 6px 16px rgba(255,138,175,.45);
+  }
+  .btn-primary:active{transform:translateY(1px);}
+  .btn-ghost{
+    background:#fff5f9;color:#c66e93;border:1.5px solid #ffd6e3;
+    font-size:13px;padding:8px 12px;width:auto;
+  }
+  .btn-ghost:hover,.btn-ghost:active{background:#ffe8f0;}
+
+  /* サンプルボタン */
+  .samples{
+    display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;
+  }
+  .sample{
+    background:#fff5f9;border:1.5px dashed #ffc8d8;color:#c66e93;
+    padding:10px 8px;border-radius:14px;font-size:13px;font-weight:600;
+    cursor:pointer;font-family:inherit;
+  }
+  .sample:hover,.sample:active{background:#ffe5ee;border-style:solid;}
+
+  /* ステータスメッセージ */
+  .status{
+    margin-top:10px;padding:10px 14px;border-radius:14px;font-size:13px;font-weight:600;
+    text-align:center;
+  }
+  .status.ok{background:#e6f6e8;color:#3a7a4a;border:1px solid #b8e0c0;}
+  .status.error{background:#fde6ec;color:#c44060;border:1px solid #f0c0d0;}
+
+  /* 計算プロセス */
+  .logic{
+    font-size:13px;font-family:"SF Mono",Menlo,monospace;
+    background:#fff5f9;padding:10px 12px;border-radius:12px;
+    color:#7d5a6c;word-break:break-all;line-height:1.6;text-align:center;
+  }
+
+  /* 履歴 */
+  .hist-list{display:flex;flex-direction:column;gap:10px;}
+  .hist-empty{
+    text-align:center;padding:20px;font-size:13px;color:#b89bac;
+    background:#fff8fb;border-radius:14px;border:1.5px dashed #ffd6e3;
+  }
+  .hist-item{
+    background:linear-gradient(135deg,#fff8fb 0%,#fff0f5 100%);
+    border-radius:16px;padding:12px 14px;
+    border:1.5px solid #ffe1eb;
+    display:flex;align-items:center;gap:10px;
+  }
+  .hist-info{flex:1;min-width:0;}
+  .hist-input{
+    font-size:13px;color:#7d5a6c;font-weight:600;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .hist-meta{font-size:11px;color:#a08698;margin-top:2px;}
+  .hist-arrow{font-size:14px;color:#d4a8bc;}
+  .hist-num{
+    font-size:32px;font-weight:800;line-height:1;min-width:36px;text-align:center;
+    background:linear-gradient(135deg,#ff8aaf 0%,#c490ce 100%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .hist-num.yang{background:linear-gradient(135deg,#ff7855 0%,#ffa074 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .hist-num.yin{background:linear-gradient(135deg,#5670d6 0%,#8a9bea 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .hist-del{
+    appearance:none;border:none;background:#ffe5ee;color:#c66e93;
+    width:30px;height:30px;border-radius:50%;font-size:16px;font-weight:700;
+    cursor:pointer;flex-shrink:0;line-height:1;
+  }
+  .hist-del:hover,.hist-del:active{background:#ffcfdf;}
+  .hist-clear-btn{
+    background:none;border:none;color:#c66e93;font-size:12px;font-weight:600;
+    cursor:pointer;float:right;padding:2px 8px;
+  }
+  .hist-clear-btn:hover{text-decoration:underline;}
+
+  /* 総合結果 */
+  .grand{
+    background:linear-gradient(135deg,#fff5d6 0%,#ffe8b8 30%,#ffd0a8 70%,#ffb8c8 100%);
+    border:2px solid #ffc890;border-radius:24px;
+    padding:20px 18px;text-align:center;
+    box-shadow:0 4px 16px rgba(255,180,130,.25);
+  }
+  .grand-title{
+    font-size:15px;font-weight:700;color:#a86040;letter-spacing:.1em;margin-bottom:8px;
+  }
+  .grand-sub{font-size:11px;color:#b88068;margin-bottom:14px;}
+  .grand-num{
+    font-size:90px;font-weight:800;line-height:1;margin:8px 0;
+    background:linear-gradient(135deg,#ff7855 0%,#ff5080 50%,#a05898 100%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .grand-formula{
+    font-size:12px;font-family:"SF Mono",Menlo,monospace;
+    color:#a06848;background:rgba(255,255,255,.5);
+    padding:6px 10px;border-radius:10px;display:inline-block;margin:6px 0;
+  }
+  .grand-state{font-size:18px;font-weight:700;color:#9c4a30;margin-top:8px;letter-spacing:.1em;}
+  .grand-action{
+    font-size:13px;color:#7c4830;margin-top:6px;
+    background:rgba(255,255,255,.55);padding:6px 12px;border-radius:12px;display:inline-block;font-weight:600;
+  }
+  .grand-empty{padding:14px;font-size:13px;color:#b88068;}
+
+  /* 数根説明テーブル（仕様確認用） */
+  .matrix-toggle{
+    background:none;border:none;color:#c66e93;font-size:12px;font-weight:600;
+    cursor:pointer;text-decoration:underline;padding:0;
+  }
+  .matrix{
+    display:none;margin-top:10px;
+  }
+  .matrix.open{display:block;}
+  .matrix-row{
+    display:flex;align-items:center;gap:10px;padding:8px 4px;
+    border-bottom:1px dashed #ffd6e3;font-size:13px;
+  }
+  .matrix-row:last-child{border-bottom:none;}
+  .matrix-num{
+    font-weight:800;font-size:18px;width:22px;text-align:center;
+  }
+  .matrix-num.yang{color:#ff7855;}
+  .matrix-num.yin{color:#5670d6;}
+  .matrix-state{font-weight:700;color:#7a4860;min-width:62px;}
+  .matrix-act{color:#8a6478;flex:1;font-size:12px;}
+
+  /* スピン動画 */
+  @keyframes pop{0%{transform:scale(.6);opacity:0;}60%{transform:scale(1.15);opacity:1;}100%{transform:scale(1);opacity:1;}}
+  .pop{animation:pop .4s ease-out;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="title">九起き ✨</div>
+    <div class="subtitle">9-OKI / 数のスキャン計器</div>
+    <div class="desc">
+      気になる数字を入れると、1〜9の<b>「数根（すうこん）」</b>に変換✨<br>
+      履歴を5件ためると、その合計から<b>総合の数根</b>がわかります🌸
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="placeholder" id="resultNum">?</div>
+    <div class="placeholder-text" id="resultText">下に数字を入れてみてね</div>
+  </div>
+
+  <div class="card">
+    <h2>① 数字を入力 <span class="badge">STEP 1</span></h2>
+    <input class="num-input" id="numInput" type="text" inputmode="decimal"
+           placeholder="例: 5,0,0,4,1,0" autocomplete="off" />
+    <div class="input-hint">カンマやスペースで区切って数字を入力してね</div>
+
+    <div class="samples">
+      <button class="sample" data-v="5,0,0,4,1,0">電話番号</button>
+      <button class="sample" data-v="2026,4,30">今日の日付</button>
+      <button class="sample" data-v="123,456">気になる数字</button>
+      <button class="sample" data-v="9,9,9">ぞろ目</button>
+    </div>
+
+    <button class="btn btn-primary" id="btnCalc">✨ 数根を出す</button>
+    <div class="status" id="status" style="display:none;"></div>
+  </div>
+
+  <div class="card" id="logicCard" style="display:none;">
+    <h2>計算の流れ</h2>
+    <div class="logic" id="logicDisplay"></div>
+  </div>
+
+  <div class="card grand" id="grandCard">
+    <div class="grand-title">🌟 総合の数根</div>
+    <div class="grand-sub">履歴5件を合算した最終結果</div>
+    <div id="grandBody">
+      <div class="grand-empty">数根を5回出すと、ここに総合結果が出ます🌸</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>履歴（最新5件）<span class="badge" id="histCount">0/5</span>
+      <button class="hist-clear-btn" id="btnClearAll">全消去</button>
+    </h2>
+    <div class="hist-list" id="histList">
+      <div class="hist-empty">まだ履歴がないよ🌸</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>1〜9 数根の意味</h2>
+    <button class="matrix-toggle" id="matrixToggle">▼ 一覧を見る</button>
+    <div class="matrix" id="matrixList"></div>
+  </div>
+
+</div>
+
+<script>
+const MATRIX = {
+  1:{attr:'陽',state:'始動',action:'決断・即時実行',emoji:'🌅'},
+  2:{attr:'陰',state:'分離',action:'状況の静観・対比',emoji:'🌙'},
+  3:{attr:'陽',state:'加速',action:'規模拡大・拡散',emoji:'🚀'},
+  4:{attr:'陰',state:'基盤',action:'マニュアル整備・保守',emoji:'🏛'},
+  5:{attr:'陽',state:'統合',action:'全体統括・支配',emoji:'⭐'},
+  6:{attr:'陰',state:'結実',action:'6Q整合・信頼構築',emoji:'🌸'},
+  7:{attr:'陽',state:'突破',action:'鬼門通過・徹底断捨離',emoji:'⚡'},
+  8:{attr:'陰',state:'安定',action:'蓄積・再考・資産化',emoji:'💎'},
+  9:{attr:'陽',state:'極超越',action:'過去清算・圧倒的再誕',emoji:'🔥'}
+};
+const STORAGE_KEY = '9oki_v3';
+const MAX_HISTORY = 5;
+const $ = id => document.getElementById(id);
+
+function digitalRoot(numbers){
+  if(!numbers || numbers.length === 0) return null;
+  let sum = numbers.reduce((a,b)=>a+b, 0);
+  const steps = [numbers.join('+') + '=' + sum];
+  while(sum >= 10){
+    const digits = String(sum).split('').map(Number);
+    const next = digits.reduce((a,b)=>a+b, 0);
+    steps.push(digits.join('+') + '=' + next);
+    sum = next;
+  }
+  if(sum === 0) sum = 9;
+  return { root: sum, steps: steps.join(' → ') };
+}
+
+function parseNumbers(str){
+  if(!str) return [];
+  return str.split(/[\s,、，\n\r\t;；]+/).map(s => s.trim()).filter(s => s.length > 0)
+    .map(s => parseInt(s.replace(/[^\d]/g,''), 10)).filter(n => !isNaN(n) && n >= 0);
+}
+
+function renderResult(root, processStr){
+  const m = MATRIX[root]; if(!m) return;
+  const r = $('result');
+  r.classList.remove('yang','yin');
+  r.classList.add('has-result', m.attr === '陽' ? 'yang' : 'yin');
+  r.innerHTML = `
+    <div class="label">あなたの数根は…</div>
+    <div class="num pop">${root}</div>
+    <div class="state">${m.emoji} ${m.attr} / ${m.state}</div>
+    <div class="action">${m.action}</div>
+  `;
+  $('logicCard').style.display = 'block';
+  $('logicDisplay').textContent = processStr;
+}
+
+function loadHistory(){
+  try{ const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; }
+  catch(e){ return []; }
+}
+function saveHistory(entry){
+  let list = loadHistory();
+  list.unshift(entry);
+  list = list.slice(0, MAX_HISTORY);
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){}
+  renderHistory();
+}
+function deleteHistoryItem(idx){
+  let list = loadHistory();
+  if(idx<0||idx>=list.length) return;
+  list.splice(idx,1);
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){}
+  renderHistory();
+}
+function clearHistory(){
+  if(loadHistory().length === 0) return;
+  if(!confirm('履歴を全部消すよ？OK?')) return;
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  renderHistory();
+}
+
+function renderHistory(){
+  const list = loadHistory();
+  $('histCount').textContent = list.length + '/5';
+  const el = $('histList');
+  if(list.length === 0){
+    el.innerHTML = '<div class="hist-empty">まだ履歴がないよ🌸</div>';
+    renderGrand([]); return;
+  }
+  el.innerHTML = '';
+  list.forEach((item, idx) => {
+    const m = MATRIX[item.root];
+    const cls = m ? (m.attr === '陽' ? 'yang' : 'yin') : '';
+    const inputStr = '[' + item.inputs.slice(0,8).join(',') + (item.inputs.length>8?'…':'') + ']';
+    const div = document.createElement('div');
+    div.className = 'hist-item';
+    div.innerHTML = `
+      <div class="hist-info">
+        <div class="hist-input">${inputStr}</div>
+        <div class="hist-meta">${m ? m.emoji+' '+m.state : ''} ・ ${item.time}</div>
+      </div>
+      <div class="hist-arrow">→</div>
+      <div class="hist-num ${cls}">${item.root}</div>
+      <button class="hist-del" data-idx="${idx}" aria-label="削除">×</button>
+    `;
+    el.appendChild(div);
+  });
+  el.querySelectorAll('.hist-del').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const i = parseInt(e.currentTarget.dataset.idx, 10);
+      if(confirm('この履歴を消すよ？')) deleteHistoryItem(i);
+    });
+  });
+  renderGrand(list);
+}
+
+function renderGrand(list){
+  const el = $('grandBody');
+  if(!list || list.length < 2){
+    el.innerHTML = `<div class="grand-empty">あと${5-(list ? list.length : 0)}件で総合数根が出るよ✨<br><small>(2件以上で計算開始)</small></div>`;
+    return;
+  }
+  const roots = list.map(it => it.root).filter(n => Number.isInteger(n) && n>=1 && n<=9);
+  if(roots.length === 0){ el.innerHTML = '<div class="grand-empty">データなし</div>'; return; }
+  const r = digitalRoot(roots);
+  const m = MATRIX[r.root];
+  el.innerHTML = `
+    <div class="grand-num pop">${r.root}</div>
+    <div class="grand-formula">${r.steps}</div>
+    <div class="grand-state">${m ? m.emoji+' '+m.attr+' / '+m.state : ''}</div>
+    <div class="grand-action">${m ? m.action : ''}</div>
+  `;
+}
+
+function setStatus(msg, type){
+  const el = $('status');
+  if(!msg){ el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.className = 'status ' + (type || '');
+  el.textContent = msg;
+  setTimeout(() => { if(type === 'ok') el.style.display = 'none'; }, 2500);
+}
+
+function runCalc(){
+  const raw = $('numInput').value;
+  const nums = parseNumbers(raw);
+  if(nums.length === 0){
+    setStatus('数字を入力してね🌸', 'error');
+    return;
+  }
+  const r = digitalRoot(nums);
+  if(!r){ setStatus('計算できなかったよ', 'error'); return; }
+  renderResult(r.root, r.steps);
+  saveHistory({
+    root: r.root,
+    inputs: nums,
+    time: new Date().toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'})
+  });
+  setStatus(`✨ 数根は ${r.root} だよ！`, 'ok');
+  // 入力欄リセット（次の入力をしやすく）
+  $('numInput').value = '';
+  // 結果までスクロール
+  document.getElementById('result').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function renderMatrix(){
+  const el = $('matrixList');
+  let html = '';
+  for(let i=1; i<=9; i++){
+    const m = MATRIX[i];
+    const cls = m.attr === '陽' ? 'yang' : 'yin';
+    html += `
+      <div class="matrix-row">
+        <div class="matrix-num ${cls}">${i}</div>
+        <div>${m.emoji}</div>
+        <div class="matrix-state">${m.attr}/${m.state}</div>
+        <div class="matrix-act">${m.action}</div>
+      </div>`;
+  }
+  el.innerHTML = html;
+}
+
+// イベント結線
+$('btnCalc').addEventListener('click', runCalc);
+$('numInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter'){ e.preventDefault(); runCalc(); }
+});
+$('btnClearAll').addEventListener('click', clearHistory);
+document.querySelectorAll('.sample').forEach(b => {
+  b.addEventListener('click', e => {
+    $('numInput').value = e.currentTarget.dataset.v;
+    runCalc();
+  });
+});
+$('matrixToggle').addEventListener('click', e => {
+  const m = $('matrixList');
+  m.classList.toggle('open');
+  e.currentTarget.textContent = m.classList.contains('open') ? '▲ 閉じる' : '▼ 一覧を見る';
+});
+
+// 初期化
+renderMatrix();
+renderHistory();
+</script>
+</body>
+</html>

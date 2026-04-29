@@ -302,6 +302,8 @@
 </div>
 
 <script>
+<script>
+// 1. 数理定義（大内軍師・専用マトリクス）
 const MATRIX = {
   1:{attr:'陽',state:'始動',action:'迷いを捨て、即座に決断・実行せよ。',emoji:'🌅'},
   2:{attr:'陰',state:'分離',action:'焦らず静観。対象を比較し歪みを見極めよ。',emoji:'🌙'},
@@ -313,57 +315,147 @@ const MATRIX = {
   8:{attr:'陰',state:'安定',action:'蓄積を意識し、資産化のための再考をせよ。',emoji:'💎'},
   9:{attr:'陽',state:'超越【九起き】',action:'因縁を焼き尽くし、別次元へ再誕せよ。',emoji:'🔥',critical:true}
 };
+
 const STORAGE_KEY = '9oki_v2';
 const MAX_HISTORY = 5;
 const $ = id => document.getElementById(id);
 
+// 2. 数根計算ロジック（TQ）
 function digitalRoot(numbers){
   if(!numbers || numbers.length === 0) return null;
   let sum = numbers.reduce((a,b)=>a+b, 0);
-  const steps = [numbers.join('+') + '=' + sum];
+  let steps = [numbers.join('+') + '=' + sum];
   while(sum >= 10){
-    const digits = String(sum).split('').map(Number);
-    const next = digits.reduce((a,b)=>a+b, 0);
+    let digits = String(sum).split('').map(Number);
+    let next = digits.reduce((a,b)=>a+b, 0);
     steps.push(digits.join('+') + '=' + next);
     sum = next;
   }
-  if(sum === 0) sum = 9;
   return { root: sum, steps: steps.join(' → ') };
 }
 
+// 3. 数字抽出
 function parseNumbers(str){
   if(!str) return [];
-  return str.split(/[\s,、，\n\r\t;；]+/).map(s => s.trim()).filter(s => s.length > 0)
-    .map(s => parseInt(s.replace(/[^\d]/g,''), 1
-setTimeout(()=>$('numInput').focus(), 100);
-  }catch(err){
-    setStatus('エラー: ' + err.message, 'error');
-  }
+  return str.split(/[\s,、，\n\r\t;；]+/).map(s => {
+    let n = parseInt(s.replace(/[^\d]/g,''), 10);
+    return isNaN(n) ? null : n;
+  }).filter(v => v !== null);
 }
 
-function clearPreview(){
-  $('previewImg').src = '';
-  $('previewSection').style.display = 'none';
+// 4. 結果描画
+function renderResult(num, steps){
+  const m = MATRIX[num];
+  const res = $('result');
+  const rNum = $('resultNum');
+  const rText = $('resultText');
+  
+  res.className = 'result has-result ' + (m.attr === '陽' ? 'yang' : 'yin') + ' num-' + num;
+  rNum.textContent = num;
+  
+  let html = `<div class="state">${m.attr} / ${m.state}</div>`;
+  html += `<div class="action">${m.action}</div>`;
+  if(m.critical) html += `<br><div class="${num===7?'warning-badge':'glory-badge'}">${num===7?'⚠️ 警告':'✨ 最大吉'}</div>`;
+  rText.innerHTML = html;
+
+  $('logicCard').style.display = 'block';
+  $('logicDisplay').innerHTML = `<strong>整合性エビデンス:</strong><br>${steps}<br><span class="integrity-badge">✅ 構造の歪みなし</span>`;
+  
+  document.body.className = num === 7 ? 'warning-7' : (num === 9 ? 'glory-9' : '');
 }
 
-function runCalc(){
-  const raw = $('numInput').value;
-  const nums = parseNumbers(raw);
-  if(nums.length === 0){
-    setStatus('数字を入力してね🌸', 'error');
+// 5. 履歴管理（ローカル保存）
+function saveHistory(data){
+  let list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  list.unshift(data);
+  if(list.length > MAX_HISTORY) list.pop();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  renderHistory();
+}
+
+function renderHistory(){
+  const list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  $('histCount').textContent = `${list.length}/${MAX_HISTORY}`;
+  const container = $('histList');
+  
+  if(list.length === 0){
+    container.innerHTML = '<div class="hist-empty">まだ履歴がないよ🌸</div>';
+    $('grandBody').innerHTML = '<div class="grand-empty">数根を5回出すと、ここに総合結果が出ます🌸</div>';
     return;
   }
+
+  container.innerHTML = list.map((item, idx) => {
+    const m = MATRIX[item.root];
+    return `
+      <div class="hist-item">
+        <div class="hist-row1">
+          <div class="hist-input">${item.inputs.join(', ')}</div>
+          <div class="hist-num ${m.attr==='陽'?'yang':'yin'}">${item.root}</div>
+          <button class="hist-del" onclick="deleteHistory(${idx})">×</button>
+        </div>
+        <div class="hist-row2">
+          <span class="hist-status">${m.emoji} ${m.attr} / ${m.state}</span>
+          <span class="hist-meta">${item.time} 判定</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  if(list.length === MAX_HISTORY) renderGrand(list);
+}
+
+// 6. 総合数根（5件合算）
+function renderGrand(list){
+  const roots = list.map(i => i.root);
+  const r = digitalRoot(roots);
+  const m = MATRIX[r.root];
+  $('grandBody').innerHTML = `
+    <div class="grand-num">${r.root}</div>
+    <div class="grand-formula">合算：${r.steps}</div>
+    <div class="grand-state">${m.emoji} 総合：${m.state}</div>
+    <div class="grand-action">${m.action}</div>
+  `;
+}
+
+// 7. カメラ・画像プレビュー
+function showPreview(file){
+  const reader = new FileReader();
+  reader.onload = e => {
+    $('previewImg').src = e.target.result;
+    $('previewSection').style.display = 'block';
+    setStatus('画像を確認しました✨', 'ok');
+  };
+  reader.readAsDataURL(file);
+}
+
+// 8. 実行処理
+function runCalc(){
+  const val = $('numInput').value;
+  const nums = parseNumbers(val);
+  if(nums.length === 0) return setStatus('数字を入力してね🌸', 'error');
   const r = digitalRoot(nums);
-  if(!r){ setStatus('計算できなかったよ', 'error'); return; }
   renderResult(r.root, r.steps);
-  saveHistory({
-    root: r.root,
-    inputs: nums,
-    time: new Date().toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'})
-  });
-  setStatus(`✨ 数根は ${r.root} だよ！`, 'ok');
+  saveHistory({ root: r.root, inputs: nums, time: new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) });
   $('numInput').value = '';
-  document.getElementById('result').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function setStatus(msg, cls){
+  const s = $('status');
+  s.textContent = msg;
+  s.className = 'status ' + cls;
+  s.style.display = 'block';
+}
+
+window.deleteHistory = function(idx){
+  let list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  list.splice(idx, 1);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  renderHistory();
+};
+
+function clearHistory(){
+  localStorage.removeItem(STORAGE_KEY);
+  renderHistory();
+  document.body.className = '';
 }
 
 function renderMatrix(){
@@ -386,35 +478,35 @@ function renderMatrix(){
   el.innerHTML = html;
 }
 
+// 9. イベントリスナー登録
 $('btnCalc').addEventListener('click', runCalc);
-$('numInput').addEventListener('keydown', e => {
-  if(e.key === 'Enter'){ e.preventDefault(); runCalc(); }
-});
-$('btnClearAll').addEventListener('click', clearHistory);
 $('btnCamera').addEventListener('click', () => $('cameraInput').click());
 $('btnGallery').addEventListener('click', () => $('fileInput').click());
-$('btnClearImg').addEventListener('click', clearPreview);
+$('btnClearAll').addEventListener('click', clearHistory);
+$('btnClearImg').addEventListener('click', () => { $('previewSection').style.display='none'; });
+
 ['fileInput','cameraInput'].forEach(id => {
   $(id).addEventListener('change', e => {
     const f = e.target.files[0];
     if(f) showPreview(f);
-    e.target.value = '';
   });
 });
+
 document.querySelectorAll('.sample').forEach(b => {
   b.addEventListener('click', e => {
     $('numInput').value = e.currentTarget.dataset.v;
     runCalc();
   });
 });
+
 $('matrixToggle').addEventListener('click', e => {
-  const m = $('matrixList');
-  m.classList.toggle('open');
-  e.currentTarget.textContent = m.classList.contains('open') ? '▲ 閉じる' : '▼ 一覧を見る';
+  $('matrixList').classList.toggle('open');
+  e.currentTarget.textContent = $('matrixList').classList.contains('open') ? '▲ 閉じる' : '▼ 一覧を見る';
 });
 
+// 初期起動
 renderMatrix();
 renderHistory();
 </script>
 </body>
-</html>                       
+</html>

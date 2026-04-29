@@ -1,3 +1,8 @@
+bash
+
+cat /home/claude/9oki/index.html
+出力
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -16,11 +21,25 @@
     color:#5a3a4a;
     background:linear-gradient(180deg,#fff5f9 0%,#fef0f5 50%,#fce4ee 100%);
     background-attachment:fixed;
+    transition:background .6s ease;
   }
   body{
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     padding-bottom:40px;
   }
+  /* 7鬼門：警告色点滅 */
+  body.warning-7{
+    animation:blink-warning 0.4s infinite;
+    background:linear-gradient(180deg,#ffe8e0 0%,#ffebeb 50%,#ffe0d5 100%);
+  }
+  @keyframes blink-warning{0%,100%{background:linear-gradient(180deg,#ffe8e0 0%,#ffebeb 50%,#ffe0d5 100%);} 50%{background:linear-gradient(180deg,#ffcccc 0%,#ffdddd 50%,#ffcccc 100%);}}
+  /* 9超越：金色輝き */
+  body.glory-9{
+    animation:shimmer-glory 0.8s ease-out;
+    background:linear-gradient(180deg,#fffde8 0%,#fffef0 50%,#fffddb 100%);
+    box-shadow:inset 0 0 60px rgba(255,215,0,.3);
+  }
+  @keyframes shimmer-glory{0%{background:linear-gradient(180deg,#ffeb3b 0%,#ffd700 50%,#ffb300 100%);box-shadow:inset 0 0 100px rgba(255,215,0,.8);} 100%{background:linear-gradient(180deg,#fffde8 0%,#fffef0 50%,#fffddb 100%);box-shadow:inset 0 0 60px rgba(255,215,0,.3);}}
 
   .wrap{max-width:480px;margin:0 auto;padding:16px;}
 
@@ -66,26 +85,24 @@
     border-radius:24px;border:2px dashed #ffc6d8;
     margin-bottom:14px;min-height:200px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transition:all .6s ease;
   }
-  .result.has-result{
-    border-style:solid;
-    background:linear-gradient(135deg,#fff5f9 0%,#fde7ef 100%);
-  }
+  .result.has-result{border-style:solid;background:linear-gradient(135deg,#fff5f9 0%,#fde7ef 100%);}
   .result.yang{background:linear-gradient(135deg,#fff0e8 0%,#ffd9c8 100%);border-color:#ff9f8a;}
   .result.yin{background:linear-gradient(135deg,#eef0ff 0%,#d8dffa 100%);border-color:#a0aae0;}
-
-  .result .label{
-    font-size:13px;color:#a07c8c;margin-bottom:8px;letter-spacing:.15em;font-weight:600;
-  }
+  .result .label{font-size:13px;color:#a07c8c;margin-bottom:8px;letter-spacing:.15em;font-weight:600;}
   .result .num{
     font-size:130px;line-height:1;font-weight:800;
     background:linear-gradient(135deg,#ff8aaf 0%,#c490ce 100%);
     -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-    text-shadow:none;
-    margin:4px 0;
+    margin:4px 0;animation:none;
   }
   .result.yang .num{background:linear-gradient(135deg,#ff7855 0%,#ffa074 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
   .result.yin .num{background:linear-gradient(135deg,#5670d6 0%,#8a9bea 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .result.num-7 .num{animation:pulse-warning 0.4s infinite;}
+  .result.num-9 .num{animation:pulse-glory 0.8s ease-out;}
+  @keyframes pulse-warning{0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.08);opacity:0.8;}}
+  @keyframes pulse-glory{0%{transform:scale(0.8);opacity:0;filter:drop-shadow(0 0 20px #ffd700);} 50%{transform:scale(1.1);opacity:1;} 100%{transform:scale(1);opacity:1;filter:drop-shadow(0 0 10px rgba(255,215,0,.5));}}
   .result .placeholder{font-size:60px;color:#e5b8cb;font-weight:300;}
   .result .state{font-size:22px;font-weight:700;color:#7a4860;margin-top:6px;letter-spacing:.1em;}
   .result.yang .state{color:#a04528;}
@@ -95,6 +112,16 @@
     background:rgba(255,255,255,.7);padding:8px 14px;border-radius:14px;display:inline-block;font-weight:600;
   }
   .result .placeholder-text{font-size:14px;color:#b89bac;margin-top:8px;}
+  .result .warning-badge{
+    margin-top:8px;display:inline-block;padding:6px 14px;
+    background:rgba(255,100,100,.15);border:1px solid #ff6464;color:#c04848;
+    border-radius:12px;font-size:12px;font-weight:700;letter-spacing:.05em;
+  }
+  .result .glory-badge{
+    margin-top:8px;display:inline-block;padding:6px 14px;
+    background:rgba(255,215,0,.15);border:1px solid #ffd700;color:#c4a000;
+    border-radius:12px;font-size:12px;font-weight:700;letter-spacing:.05em;
+  }
 
   /* 入力フィールド */
   .num-input{
@@ -102,8 +129,7 @@
     background:#fff8fb;border:2px solid #ffd0e0;
     border-radius:16px;color:#5a3a4a;font-size:18px;font-family:inherit;font-weight:600;
     -webkit-appearance:none;outline:none;
-    transition:all .15s;
-    text-align:center;letter-spacing:.05em;
+    transition:all .15s;text-align:center;letter-spacing:.05em;
   }
   .num-input:focus{border-color:#ff8aaf;background:#fff;box-shadow:0 0 0 4px rgba(255,138,175,.12);}
   .num-input::placeholder{color:#d8b6c5;font-weight:500;}
@@ -118,23 +144,13 @@
   }
   .btn-primary{
     background:linear-gradient(135deg,#ff8aaf 0%,#ff9fbe 100%);color:#fff;
-    box-shadow:0 4px 12px rgba(255,138,175,.35);
-    margin-top:12px;
+    box-shadow:0 4px 12px rgba(255,138,175,.35);margin-top:12px;
   }
-  .btn-primary:hover,.btn-primary:active{
-    transform:translateY(-1px);box-shadow:0 6px 16px rgba(255,138,175,.45);
-  }
+  .btn-primary:hover,.btn-primary:active{transform:translateY(-1px);box-shadow:0 6px 16px rgba(255,138,175,.45);}
   .btn-primary:active{transform:translateY(1px);}
-  .btn-ghost{
-    background:#fff5f9;color:#c66e93;border:1.5px solid #ffd6e3;
-    font-size:13px;padding:8px 12px;width:auto;
-  }
-  .btn-ghost:hover,.btn-ghost:active{background:#ffe8f0;}
 
   /* サンプルボタン */
-  .samples{
-    display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;
-  }
+  .samples{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
   .sample{
     background:#fff5f9;border:1.5px dashed #ffc8d8;color:#c66e93;
     padding:10px 8px;border-radius:14px;font-size:13px;font-weight:600;
@@ -156,6 +172,11 @@
     background:#fff5f9;padding:10px 12px;border-radius:12px;
     color:#7d5a6c;word-break:break-all;line-height:1.6;text-align:center;
   }
+  .integrity-badge{
+    display:inline-block;margin-top:8px;padding:4px 10px;
+    background:#e8f8eb;border:1px solid #7cb871;color:#2d7a3a;
+    border-radius:10px;font-size:11px;font-weight:600;
+  }
 
   /* 履歴 */
   .hist-list{display:flex;flex-direction:column;gap:10px;}
@@ -167,14 +188,10 @@
     background:linear-gradient(135deg,#fff8fb 0%,#fff0f5 100%);
     border-radius:16px;padding:12px 14px;
     border:1.5px solid #ffe1eb;
-    display:flex;align-items:center;gap:10px;
+    display:flex;flex-direction:column;gap:8px;
   }
-  .hist-info{flex:1;min-width:0;}
-  .hist-input{
-    font-size:13px;color:#7d5a6c;font-weight:600;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  }
-  .hist-meta{font-size:11px;color:#a08698;margin-top:2px;}
+  .hist-row1{display:flex;align-items:center;gap:10px;}
+  .hist-input{flex:1;font-size:13px;color:#7d5a6c;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .hist-arrow{font-size:14px;color:#d4a8bc;}
   .hist-num{
     font-size:32px;font-weight:800;line-height:1;min-width:36px;text-align:center;
@@ -189,6 +206,9 @@
     cursor:pointer;flex-shrink:0;line-height:1;
   }
   .hist-del:hover,.hist-del:active{background:#ffcfdf;}
+  .hist-row2{display:flex;flex-direction:column;gap:3px;font-size:11px;opacity:.75;}
+  .hist-status{color:#7a4860;font-weight:700;letter-spacing:.05em;}
+  .hist-meta{opacity:.8;}
   .hist-clear-btn{
     background:none;border:none;color:#c66e93;font-size:12px;font-weight:600;
     cursor:pointer;float:right;padding:2px 8px;
@@ -223,7 +243,7 @@
   }
   .grand-empty{padding:14px;font-size:13px;color:#b88068;}
 
-  /* 数根説明テーブル（仕様確認用） */
+  /* 数根説明テーブル */
   .matrix-toggle{
     background:none;border:none;color:#c66e93;font-size:12px;font-weight:600;
     cursor:pointer;text-decoration:underline;padding:0;
@@ -233,21 +253,18 @@
   }
   .matrix.open{display:block;}
   .matrix-row{
-    display:flex;align-items:center;gap:10px;padding:8px 4px;
-    border-bottom:1px dashed #ffd6e3;font-size:13px;
+    display:flex;align-items:flex-start;gap:10px;padding:10px 4px;
+    border-bottom:1px dashed #ffd6e3;font-size:12px;
   }
   .matrix-row:last-child{border-bottom:none;}
-  .matrix-num{
-    font-weight:800;font-size:18px;width:22px;text-align:center;
-  }
+  .matrix-num{font-weight:800;font-size:20px;width:24px;text-align:center;flex-shrink:0;}
   .matrix-num.yang{color:#ff7855;}
   .matrix-num.yin{color:#5670d6;}
-  .matrix-state{font-weight:700;color:#7a4860;min-width:62px;}
-  .matrix-act{color:#8a6478;flex:1;font-size:12px;}
-
-  /* スピン動画 */
-  @keyframes pop{0%{transform:scale(.6);opacity:0;}60%{transform:scale(1.15);opacity:1;}100%{transform:scale(1);opacity:1;}}
-  .pop{animation:pop .4s ease-out;}
+  .matrix-num.emphasis{color:#ff4444;animation:pulse-badge 0.6s infinite;}
+  @keyframes pulse-badge{0%,100%{transform:scale(1);} 50%{transform:scale(1.15);}}
+  .matrix-content{text-align:left;}
+  .matrix-state{font-weight:700;color:#7a4860;margin-bottom:2px;}
+  .matrix-action{color:#8a6478;line-height:1.5;font-size:11px;}
 </style>
 </head>
 <body>
@@ -255,7 +272,7 @@
 
   <div class="hero">
     <div class="title">九起き ✨</div>
-    <div class="subtitle">9-OKI / 数のスキャン計器</div>
+    <div class="subtitle">9-OKI / 数のスキャン計器 [V2]</div>
     <div class="desc">
       気になる数字を入れると、1〜9の<b>「数根（すうこん）」</b>に変換✨<br>
       履歴を5件ためると、その合計から<b>総合の数根</b>がわかります🌸
@@ -316,17 +333,17 @@
 
 <script>
 const MATRIX = {
-  1:{attr:'陽',state:'始動',action:'決断・即時実行',emoji:'🌅'},
-  2:{attr:'陰',state:'分離',action:'状況の静観・対比',emoji:'🌙'},
-  3:{attr:'陽',state:'加速',action:'規模拡大・拡散',emoji:'🚀'},
-  4:{attr:'陰',state:'基盤',action:'マニュアル整備・保守',emoji:'🏛'},
-  5:{attr:'陽',state:'統合',action:'全体統括・支配',emoji:'⭐'},
-  6:{attr:'陰',state:'結実',action:'6Q整合・信頼構築',emoji:'🌸'},
-  7:{attr:'陽',state:'突破',action:'鬼門通過・徹底断捨離',emoji:'⚡'},
-  8:{attr:'陰',state:'安定',action:'蓄積・再考・資産化',emoji:'💎'},
-  9:{attr:'陽',state:'極超越',action:'過去清算・圧倒的再誕',emoji:'🔥'}
+  1:{attr:'陽',state:'始動',action:'迷いを捨て、即座に決断・実行せよ。',emoji:'🌅'},
+  2:{attr:'陰',state:'分離',action:'焦らず静観。対象を比較し歪みを見極めよ。',emoji:'🌙'},
+  3:{attr:'陽',state:'加速',action:'勢いを止めず、一気に拡散・成長させよ。',emoji:'🚀'},
+  4:{attr:'陰',state:'基盤',action:'内側を固め、マニュアルと構造を整えよ。',emoji:'🏛'},
+  5:{attr:'陽',state:'統合',action:'全体を俯瞰し、中心から全てを支配せよ。',emoji:'⭐'},
+  6:{attr:'陰',state:'結実',action:'6Qを整合させ、社会的信頼を完成させよ。',emoji:'🌸'},
+  7:{attr:'陽',state:'突破【鬼門】',action:'過去の執着を捨て、徹底的に断捨離せよ。',emoji:'⚡',critical:true},
+  8:{attr:'陰',state:'安定',action:'蓄積を意識し、資産化のための再考をせよ。',emoji:'💎'},
+  9:{attr:'陽',state:'超越【九起き】',action:'因縁を焼き尽くし、別次元へ再誕せよ。',emoji:'🔥',critical:true}
 };
-const STORAGE_KEY = '9oki_v3';
+const STORAGE_KEY = '9oki_v2';
 const MAX_HISTORY = 5;
 const $ = id => document.getElementById(id);
 
@@ -353,16 +370,26 @@ function parseNumbers(str){
 function renderResult(root, processStr){
   const m = MATRIX[root]; if(!m) return;
   const r = $('result');
-  r.classList.remove('yang','yin');
+  r.classList.remove('yang','yin','num-7','num-9');
   r.classList.add('has-result', m.attr === '陽' ? 'yang' : 'yin');
-  r.innerHTML = `
+  if(root === 7) r.classList.add('num-7');
+  if(root === 9) r.classList.add('num-9');
+  
+  document.body.classList.remove('warning-7','glory-9');
+  if(root === 7) document.body.classList.add('warning-7');
+  if(root === 9) document.body.classList.add('glory-9');
+
+  let html = `
     <div class="label">あなたの数根は…</div>
-    <div class="num pop">${root}</div>
+    <div class="num">${root}</div>
     <div class="state">${m.emoji} ${m.attr} / ${m.state}</div>
-    <div class="action">${m.action}</div>
-  `;
+    <div class="action">${m.action}</div>`;
+  if(root === 7) html += '<div class="warning-badge">⚠️ 鬼門：人生の転換点</div>';
+  if(root === 9) html += '<div class="glory-badge">✨ 超越：新世界への始まり</div>';
+  r.innerHTML = html;
+
   $('logicCard').style.display = 'block';
-  $('logicDisplay').textContent = processStr;
+  $('logicDisplay').innerHTML = processStr + '<div class="integrity-badge">✓ 歪みなし（整合完了）</div>';
 }
 
 function loadHistory(){
@@ -406,14 +433,16 @@ function renderHistory(){
     const div = document.createElement('div');
     div.className = 'hist-item';
     div.innerHTML = `
-      <div class="hist-info">
+      <div class="hist-row1">
         <div class="hist-input">${inputStr}</div>
-        <div class="hist-meta">${m ? m.emoji+' '+m.state : ''} ・ ${item.time}</div>
+        <div class="hist-arrow">→</div>
+        <div class="hist-num ${cls}">${item.root}</div>
+        <button class="hist-del" data-idx="${idx}" aria-label="削除">×</button>
       </div>
-      <div class="hist-arrow">→</div>
-      <div class="hist-num ${cls}">${item.root}</div>
-      <button class="hist-del" data-idx="${idx}" aria-label="削除">×</button>
-    `;
+      <div class="hist-row2">
+        <div class="hist-status">${m ? m.emoji+' '+m.state : ''}</div>
+        <div class="hist-meta">${item.time}</div>
+      </div>`;
     el.appendChild(div);
   });
   el.querySelectorAll('.hist-del').forEach(btn => {
@@ -437,7 +466,7 @@ function renderGrand(list){
   const r = digitalRoot(roots);
   const m = MATRIX[r.root];
   el.innerHTML = `
-    <div class="grand-num pop">${r.root}</div>
+    <div class="grand-num">${r.root}</div>
     <div class="grand-formula">${r.steps}</div>
     <div class="grand-state">${m ? m.emoji+' '+m.attr+' / '+m.state : ''}</div>
     <div class="grand-action">${m ? m.action : ''}</div>
@@ -469,9 +498,7 @@ function runCalc(){
     time: new Date().toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'})
   });
   setStatus(`✨ 数根は ${r.root} だよ！`, 'ok');
-  // 入力欄リセット（次の入力をしやすく）
   $('numInput').value = '';
-  // 結果までスクロール
   document.getElementById('result').scrollIntoView({behavior:'smooth', block:'center'});
 }
 
@@ -481,18 +508,20 @@ function renderMatrix(){
   for(let i=1; i<=9; i++){
     const m = MATRIX[i];
     const cls = m.attr === '陽' ? 'yang' : 'yin';
+    const emphasis = m.critical ? 'emphasis' : '';
     html += `
       <div class="matrix-row">
-        <div class="matrix-num ${cls}">${i}</div>
+        <div class="matrix-num ${cls} ${emphasis}">${i}</div>
         <div>${m.emoji}</div>
-        <div class="matrix-state">${m.attr}/${m.state}</div>
-        <div class="matrix-act">${m.action}</div>
+        <div class="matrix-content">
+          <div class="matrix-state">${m.attr} / ${m.state}</div>
+          <div class="matrix-action">${m.action}</div>
+        </div>
       </div>`;
   }
   el.innerHTML = html;
 }
 
-// イベント結線
 $('btnCalc').addEventListener('click', runCalc);
 $('numInput').addEventListener('keydown', e => {
   if(e.key === 'Enter'){ e.preventDefault(); runCalc(); }
@@ -510,7 +539,6 @@ $('matrixToggle').addEventListener('click', e => {
   e.currentTarget.textContent = m.classList.contains('open') ? '▲ 閉じる' : '▼ 一覧を見る';
 });
 
-// 初期化
 renderMatrix();
 renderHistory();
 </script>

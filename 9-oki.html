@@ -241,10 +241,10 @@
 <div class="wrap">
   <div class="hero">
     <div class="title">九起き ✨</div>
-    <div class="subtitle">9-OKI / 数のスキャン計器 [V2.1]</div>
+    <div class="subtitle">9-OKI / 数のスキャン計器 [V2.2]</div>
     <div class="desc">
-      気になる数字を入れると、<br>1〜9の<b>「数根（すうこん）」</b>に変換✨<br>
-      履歴を5件ためると、<br>その合計から<b>総合の数根</b>がわかります🌸
+      数字を入力すると、1〜9の<b>「数根（すうこん）」</b>に一瞬で変換✨<br>
+      計算するたびに履歴が貯まり、<b>総合の数根</b>がリアルタイムで出ます🌸
     </div>
   </div>
   <div class="result" id="result">
@@ -253,39 +253,32 @@
   </div>
   <div class="card">
     <h2>① 数字を入力 <span class="badge">STEP 1</span></h2>
-    <div style="display:flex;gap:8px;margin-bottom:12px;">
-      <button class="btn" id="btnCamera" style="background:#fff5f9;border:1.5px dashed #ffc8d8;color:#c66e93;padding:10px;font-size:13px;width:auto;flex:1;margin:0;">📷 カメラ</button>
-      <button class="btn" id="btnGallery" style="background:#fff5f9;border:1.5px dashed #ffc8d8;color:#c66e93;padding:10px;font-size:13px;width:auto;flex:1;margin:0;">🖼 画像</button>
-    </div>
-    <input type="file" id="fileInput" accept="image/*" style="display:none;" />
-    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" />
-    <div id="previewSection" style="display:none;margin-bottom:12px;">
-      <div style="font-size:11px;color:#a08698;margin-bottom:6px;">📸 参照画像：</div>
-      <img id="previewImg" style="max-width:100%;max-height:150px;border-radius:12px;" alt="参照画像" />
-      <button id="btnClearImg" style="background:none;border:none;color:#c66e93;font-size:12px;cursor:pointer;margin-top:4px;">消去</button>
-    </div>
-    <input class="num-input" id="numInput" type="text" inputmode="decimal" placeholder="例: 5,0,0,4,1,0" autocomplete="off" />
-    <div class="input-hint">カメラ/画像から参照、または手入力でも OK</div>
+    <input class="num-input" id="numInput" type="text" inputmode="decimal"
+           placeholder="例: 5,0,0,4,1,0" autocomplete="off" />
+    <div class="input-hint">カンマやスペースで区切って数字を入力してね</div>
+
     <div class="samples">
       <button class="sample" data-v="5,0,0,4,1,0">電話番号</button>
       <button class="sample" data-v="2026,4,30">今日の日付</button>
-      <button class="sample" data-v="123,456">気になる数字</button>
-      <button class="sample" data-v="9,9,9">ぞろ目</button>
     </div>
+
     <button class="btn btn-primary" id="btnCalc">✨ 数根を出す</button>
     <div class="status" id="status" style="display:none;"></div>
   </div>
+
   <div class="card" id="logicCard" style="display:none;">
     <h2>計算の流れ</h2>
     <div class="logic" id="logicDisplay"></div>
   </div>
+
   <div class="card grand" id="grandCard">
     <div class="grand-title">🌟 総合の数根</div>
-    <div class="grand-sub">履歴5件を合算した最終結果</div>
+    <div class="grand-sub">履歴の合算結果（リアルタイム更新）</div>
     <div id="grandBody">
-      <div class="grand-empty">数根を5回出すと、ここに総合結果が出ます🌸</div>
+      <div class="grand-empty">数根を出すと、ここに総合結果が表示されます🌸</div>
     </div>
   </div>
+
   <div class="card">
     <h2>履歴（最新5件）<span class="badge" id="histCount">0/5</span>
       <button class="hist-clear-btn" id="btnClearAll">全消去</button>
@@ -294,14 +287,15 @@
       <div class="hist-empty">まだ履歴がないよ🌸</div>
     </div>
   </div>
+
   <div class="card">
     <h2>1〜9 数根の意味</h2>
     <button class="matrix-toggle" id="matrixToggle">▼ 一覧を見る</button>
     <div class="matrix" id="matrixList"></div>
   </div>
 </div>
+
 <script>
-// 1. 数理定義（大内軍師・専用マトリクス）
 const MATRIX = {
   1:{attr:'陽',state:'始動',action:'迷いを捨て、即座に決断・実行せよ。',emoji:'🌅'},
   2:{attr:'陰',state:'分離',action:'焦らず静観。対象を比較し歪みを見極めよ。',emoji:'🌙'},
@@ -313,153 +307,167 @@ const MATRIX = {
   8:{attr:'陰',state:'安定',action:'蓄積を意識し、資産化のための再考をせよ。',emoji:'💎'},
   9:{attr:'陽',state:'超越【九起き】',action:'因縁を焼き尽くし、別次元へ再誕せよ。',emoji:'🔥',critical:true}
 };
-
 const STORAGE_KEY = '9oki_v2';
 const MAX_HISTORY = 5;
 const $ = id => document.getElementById(id);
 
-// 2. 数根計算ロジック（TQ：構造・因果整理）
 function digitalRoot(numbers){
   if(!numbers || numbers.length === 0) return null;
   let sum = numbers.reduce((a,b)=>a+b, 0);
-  let steps = [numbers.join('+') + '=' + sum];
+  const steps = [numbers.join('+') + '=' + sum];
   while(sum >= 10){
-    let digits = String(sum).split('').map(Number);
-    let next = digits.reduce((a,b)=>a+b, 0);
+    const digits = String(sum).split('').map(Number);
+    const next = digits.reduce((a,b)=>a+b, 0);
     steps.push(digits.join('+') + '=' + next);
     sum = next;
   }
+  if(sum === 0) sum = 9;
   return { root: sum, steps: steps.join(' → ') };
 }
 
-// 3. 数字抽出（情報の濾過）
 function parseNumbers(str){
   if(!str) return [];
-  return str.split(/[\s,、，\n\r\t;；]+/).map(s => {
-    let n = parseInt(s.replace(/[^\d]/g,''), 10);
-    return isNaN(n) ? null : n;
-  }).filter(v => v !== null);
+  return str.split(/[\s,、，\n\r\t;；]+/).map(s => s.trim()).filter(s => s.length > 0)
+    .map(s => parseInt(s.replace(/[^\d]/g,''), 10)).filter(n => !isNaN(n) && n >= 0);
 }
 
-// 4. 結果表示（EQ・LQ：共感設計と信頼構築）
-function renderResult(num, steps){
-  const m = MATRIX[num];
-  const res = $('result');
-  const rNum = $('resultNum');
-  const rText = $('resultText');
+function renderResult(root, processStr){
+  const m = MATRIX[root]; if(!m) return;
+  const r = $('result');
+  r.classList.remove('yang','yin','num-7','num-9');
+  r.classList.add('has-result', m.attr === '陽' ? 'yang' : 'yin');
+  if(root === 7) r.classList.add('num-7');
+  if(root === 9) r.classList.add('num-9');
   
-  res.className = 'result has-result ' + (m.attr === '陽' ? 'yang' : 'yin') + ' num-' + num;
-  rNum.textContent = num;
-  
-  let html = `<div class="state">${m.attr} / ${m.state}</div>`;
-  html += `<div class="action">${m.action}</div>`;
-  if(m.critical) html += `<br><div class="${num===7?'warning-badge':'glory-badge'}">${num===7?'⚠️ 警告':'✨ 最大吉'}</div>`;
-  rText.innerHTML = html;
+  document.body.classList.remove('warning-7','glory-9');
+  if(root === 7) document.body.classList.add('warning-7');
+  if(root === 9) document.body.classList.add('glory-9');
+
+  let html = `
+    <div class="label">あなたの数根は…</div>
+    <div class="num">${root}</div>
+    <div class="state">${m.emoji} ${m.attr} / ${m.state}</div>
+    <div class="action">${m.action}</div>`;
+  if(root === 7) html += '<div class="warning-badge">⚠️ 鬼門：人生の転換点</div>';
+  if(root === 9) html += '<div class="glory-badge">✨ 超越：新世界への始まり</div>';
+  r.innerHTML = html;
 
   $('logicCard').style.display = 'block';
-  $('logicDisplay').innerHTML = `<strong>整合性エビデンス:</strong><br>${steps}<br><span class="integrity-badge">✅ 構造の歪みなし</span>`;
-  
-  document.body.className = num === 7 ? 'warning-7' : (num === 9 ? 'glory-9' : '');
+  $('logicDisplay').innerHTML = processStr + '<div class="integrity-badge">✓ 歪みなし（整合完了）</div>';
 }
 
-// 5. 履歴管理
-function saveHistory(data){
-  let list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  list.unshift(data);
-  if(list.length > MAX_HISTORY) list.pop();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+function loadHistory(){
+  try{ const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; }
+  catch(e){ return []; }
+}
+function saveHistory(entry){
+  let list = loadHistory();
+  list.unshift(entry);
+  list = list.slice(0, MAX_HISTORY);
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){}
+  renderHistory();
+}
+function deleteHistoryItem(idx){
+  let list = loadHistory();
+  if(idx<0||idx>=list.length) return;
+  list.splice(idx,1);
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){}
+  renderHistory();
+}
+function clearHistory(){
+  if(loadHistory().length === 0) return;
+  if(!confirm('履歴を全部消すよ？OK?')) return;
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   renderHistory();
 }
 
 function renderHistory(){
-  const list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  $('histCount').textContent = `${list.length}/${MAX_HISTORY}`;
-  const container = $('histList');
-  
+  const list = loadHistory();
+  $('histCount').textContent = list.length + '/5';
+  const el = $('histList');
   if(list.length === 0){
-    container.innerHTML = '<div class="hist-empty">まだ履歴がないよ🌸</div>';
-    $('grandBody').innerHTML = '<div class="grand-empty">数根を5回出すと、ここに総合結果が出ます🌸</div>';
-    return;
+    el.innerHTML = '<div class="hist-empty">まだ履歴がないよ🌸</div>';
+    renderGrand([]); return;
   }
-
-  container.innerHTML = list.map((item, idx) => {
+  el.innerHTML = '';
+  list.forEach((item, idx) => {
     const m = MATRIX[item.root];
-    return `
-      <div class="hist-item">
-        <div class="hist-row1">
-          <div class="hist-input">${item.inputs.join(', ')}</div>
-          <div class="hist-num ${m.attr==='陽'?'yang':'yin'}">${item.root}</div>
-          <button class="hist-del" onclick="deleteHistory(${idx})">×</button>
-        </div>
-        <div class="hist-row2">
-          <span class="hist-status">${m.emoji} ${m.attr} / ${m.state}</span>
-          <span class="hist-meta">${item.time} 判定</span>
-        </div>
+    const cls = m ? (m.attr === '陽' ? 'yang' : 'yin') : '';
+    const inputStr = '[' + item.inputs.slice(0,8).join(',') + (item.inputs.length>8?'…':'') + ']';
+    const div = document.createElement('div');
+    div.className = 'hist-item';
+    div.innerHTML = `
+      <div class="hist-row1">
+        <div class="hist-input">${inputStr}</div>
+        <div class="hist-arrow">→</div>
+        <div class="hist-num ${cls}">${item.root}</div>
+        <button class="hist-del" data-idx="${idx}" aria-label="削除">×</button>
+      </div>
+      <div class="hist-row2">
+        <div class="hist-status">${m ? m.emoji+' '+m.state : ''}</div>
+        <div class="hist-meta">${item.time}</div>
       </div>`;
-  }).join('');
-
-  if(list.length === MAX_HISTORY) renderGrand(list);
+    el.appendChild(div);
+  });
+  el.querySelectorAll('.hist-del').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const i = parseInt(e.currentTarget.dataset.idx, 10);
+      if(confirm('この履歴を消すよ？')) deleteHistoryItem(i);
+    });
+  });
+  renderGrand(list);
 }
 
-// 6. 総合数根
 function renderGrand(list){
-  const roots = list.map(i => i.root);
+  const el = $('grandBody');
+  if(!list || list.length < 1){
+    el.innerHTML = `<div class="grand-empty">数根を出すと、ここに総合結果が表示されます🌸</div>`;
+    return;
+  }
+  const roots = list.map(it => it.root).filter(n => Number.isInteger(n) && n>=1 && n<=9);
+  if(roots.length === 0){ el.innerHTML = '<div class="grand-empty">データなし</div>'; return; }
   const r = digitalRoot(roots);
   const m = MATRIX[r.root];
-  $('grandBody').innerHTML = `
+  el.innerHTML = `
     <div class="grand-num">${r.root}</div>
-    <div class="grand-formula">合算：${r.steps}</div>
-    <div class="grand-state">${m.emoji} 総合：${m.state}</div>
-    <div class="grand-action">${m.action}</div>
+    <div class="grand-formula">${r.steps}</div>
+    <div class="grand-state">${m ? m.emoji+' '+m.attr+' / '+m.state : ''}</div>
+    <div class="grand-action">${m ? m.action : ''}</div>
   `;
 }
 
-// 7. カメラ起動
-function showPreview(file){
-  const reader = new FileReader();
-  reader.onload = e => {
-    $('previewImg').src = e.target.result;
-    $('previewSection').style.display = 'block';
-    setStatus('画像を確認しました✨', 'ok');
-  };
-  reader.readAsDataURL(file);
+function setStatus(msg, type){
+  const el = $('status');
+  if(!msg){ el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.className = 'status ' + (type || '');
+  el.textContent = msg;
+  setTimeout(() => { if(type === 'ok') el.style.display = 'none'; }, 2500);
 }
 
-// 8. 実行
 function runCalc(){
-  const val = $('numInput').value;
-  const nums = parseNumbers(val);
-  if(nums.length === 0) return setStatus('数字を入力してね🌸', 'error');
+  const raw = $('numInput').value;
+  const nums = parseNumbers(raw);
+  if(nums.length === 0){
+    setStatus('数字を入力してね🌸', 'error');
+    return;
+  }
   const r = digitalRoot(nums);
+  if(!r){ setStatus('計算できなかったよ', 'error'); return; }
   renderResult(r.root, r.steps);
-  saveHistory({ root: r.root, inputs: nums, time: new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) });
+  saveHistory({
+    root: r.root,
+    inputs: nums,
+    time: new Date().toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'})
+  });
+  setStatus(`✨ 数根は ${r.root} だよ！`, 'ok');
   $('numInput').value = '';
-}
-
-function setStatus(msg, cls){
-  const s = $('status');
-  if(!s) return;
-  s.textContent = msg;
-  s.className = 'status ' + cls;
-  s.style.display = 'block';
-}
-
-window.deleteHistory = function(idx){
-  let list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  list.splice(idx, 1);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  renderHistory();
-};
-
-function clearHistory(){
-  localStorage.removeItem(STORAGE_KEY);
-  renderHistory();
-  document.body.className = '';
+  document.getElementById('result').scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 function renderMatrix(){
   const el = $('matrixList');
-  if(!el) return;
   let html = '';
   for(let i=1; i<=9; i++){
     const m = MATRIX[i];
@@ -478,36 +486,25 @@ function renderMatrix(){
   el.innerHTML = html;
 }
 
-// 9. イベント登録
-window.onload = () => {
-  $('btnCalc').addEventListener('click', runCalc);
-  $('btnCamera').addEventListener('click', () => $('cameraInput').click());
-  $('btnGallery').addEventListener('click', () => $('fileInput').click());
-  if($('btnClearAll')) $('btnClearAll').addEventListener('click', clearHistory);
-  if($('btnClearImg')) $('btnClearImg').addEventListener('click', () => { $('previewSection').style.display='none'; });
-
-  ['fileInput','cameraInput'].forEach(id => {
-    $(id).addEventListener('change', e => {
-      const f = e.target.files[0];
-      if(f) showPreview(f);
-    });
+$('btnCalc').addEventListener('click', runCalc);
+$('numInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter'){ e.preventDefault(); runCalc(); }
+});
+$('btnClearAll').addEventListener('click', clearHistory);
+document.querySelectorAll('.sample').forEach(b => {
+  b.addEventListener('click', e => {
+    $('numInput').value = e.currentTarget.dataset.v;
+    runCalc();
   });
+});
+$('matrixToggle').addEventListener('click', e => {
+  const m = $('matrixList');
+  m.classList.toggle('open');
+  e.currentTarget.textContent = m.classList.contains('open') ? '▲ 閉じる' : '▼ 一覧を見る';
+});
 
-  document.querySelectorAll('.sample').forEach(b => {
-    b.addEventListener('click', e => {
-      $('numInput').value = e.currentTarget.dataset.v;
-      runCalc();
-    });
-  });
-
-  $('matrixToggle').addEventListener('click', e => {
-    $('matrixList').classList.toggle('open');
-    e.currentTarget.textContent = $('matrixList').classList.contains('open') ? '▲ 閉じる' : '▼ 一覧を見る';
-  });
-
-  renderMatrix();
-  renderHistory();
-};
+renderMatrix();
+renderHistory();
 </script>
 </body>
 </html>
